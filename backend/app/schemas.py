@@ -28,6 +28,45 @@ class EntryPayload(BaseModel):
     remark: str | None = None
 
 
+class SimulatePayload(BaseModel):
+    """逾期阈值模拟器的滑杆参数：巡查周期、天气等级、路段风险。"""
+
+    cycle_days: int = Field(default=7, ge=1, le=30, description="普通路段巡查周期（天）")
+    weather_level: int = Field(default=1, ge=1, le=5, description="天气等级 1-5")
+    risk_level: int = Field(default=1, ge=1, le=3, description="路段风险 1-3")
+
+
+class PublishPayload(SimulatePayload):
+    """规则发布请求：版本锁 + 幂等键，重复发布只生效一次。"""
+
+    expected_version: int = Field(ge=1, description="发布时看到的规则版本号")
+    idempotency_key: str = Field(min_length=4, max_length=128, description="幂等键，同一键只生效一次")
+
+
+class ThresholdRuleEntry(BaseModel):
+    """逾期阈值规则明细结构。"""
+
+    field_0: str | None = None  # 规则名称
+    field_1: str | None = None  # 适用范围
+    field_2: str | None = None  # 覆盖路段
+    field_3: str | None = None  # 批准方案号
+    field_4: str | None = None  # 巡查周期
+    field_5: str | None = None  # 天气等级
+    field_6: str | None = None  # 路段风险
+    field_7: str | None = None  # 规则状态
+
+class PatrolScheduleEntry(BaseModel):
+    """巡查排班明细结构。"""
+
+    field_0: str | None = None  # 排班编号
+    field_1: str | None = None  # 巡查路段
+    field_2: str | None = None  # 计划日期
+    field_3: str | None = None  # 计划月份
+    field_4: str | None = None  # 巡查车辆
+    field_5: str | None = None  # 规则来源
+    field_6: str | None = None  # 计划版本
+    field_7: str | None = None  # 排班状态
+
 
 class RoadSectionEntry(BaseModel):
     """管养路段明细结构。"""
