@@ -16,7 +16,38 @@
         <span class="stat-label">{{ item.label }}</span>
         <strong class="stat-value">{{ item.value }}</strong>
       </article>
+      <article class="stat-card">
+        <span class="stat-label">逾期督办待办</span>
+        <strong class="stat-value danger">{{ todoCount }}</strong>
+      </article>
     </div>
+
+    <section v-if="todos.length" class="todo-panel">
+      <header class="todo-head">
+        <h3>巡查待办 · 逾期督办（阈值模拟处置下发）</h3>
+        <RouterLink class="link" to="/simulator">去模拟器</RouterLink>
+      </header>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>待办编号</th><th>来源巡查</th><th>路段</th><th>逾期天数</th>
+            <th>生效周期</th><th>阈值来源</th><th>下发日期</th><th>状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="todo in todos" :key="String(todo.id)">
+            <td>{{ todo['待办编号'] }}</td>
+            <td>{{ todo['来源巡查'] }}</td>
+            <td>{{ todo['路段名称'] }}</td>
+            <td class="danger">{{ todo['逾期天数'] }} 天</td>
+            <td>{{ todo['生效周期'] }} 天</td>
+            <td>{{ todo['适用来源'] }}</td>
+            <td>{{ todo['下发日期'] }}</td>
+            <td><span class="todo-badge">{{ todo['状态'] }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
     <form class="filter-bar" @submit.prevent="reload">
       <label v-for="field in filterFields" :key="field" class="filter-item">
@@ -80,6 +111,20 @@ const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
+const todos = ref<Row[]>([])
+const todoCount = ref(0)
+
+async function loadTodos() {
+  try {
+    const response = await request('/api/simulator/todos')
+    if (!response.ok) return
+    const payload = await response.json()
+    todos.value = payload.items ?? []
+    todoCount.value = todos.value.length
+  } catch {
+    // 模拟器未就绪时不影响巡查主列表
+  }
+}
 
 function resetFilters() {
   filters.value = {}
@@ -126,5 +171,23 @@ async function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  void reload()
+  void loadTodos()
+})
 </script>
+
+<style scoped>
+.todo-panel {
+  background: #fff;
+  border: 1px solid #f3c6c0;
+  border-left: 4px solid #b42318;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+.todo-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.todo-head h3 { margin: 0; font-size: 14px; }
+.todo-badge { background: #fef2f2; color: #b42318; border-radius: 999px; padding: 1px 8px; font-size: 12px; }
+.danger { color: #b42318; }
+</style>

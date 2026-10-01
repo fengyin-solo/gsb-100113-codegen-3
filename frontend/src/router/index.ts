@@ -19,6 +19,8 @@ const Bearing = () => import('@/views/bearing/index.vue')
 const Project = () => import('@/views/project/index.vue')
 const Vehicle = () => import('@/views/vehicle/index.vue')
 const Material = () => import('@/views/material/index.vue')
+const Simulator = () => import('@/views/simulator/index.vue')
+const VehicleSummary = () => import('@/views/vehicle_summary/index.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,6 +28,8 @@ const router = createRouter({
     { path: '/', name: 'dashboard', component: Dashboard },
     { path: '/road_section', name: 'road_section', component: RoadSection },
     { path: '/patrol', name: 'patrol', component: Patrol },
+    { path: '/simulator', name: 'simulator', component: Simulator },
+    { path: '/vehicle_summary', name: 'vehicle_summary', component: VehicleSummary },
     { path: '/pavement', name: 'pavement', component: Pavement },
     { path: '/bridge', name: 'bridge', component: Bridge },
     { path: '/bridge_info', name: 'bridge_info', component: BridgeInfo },

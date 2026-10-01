@@ -11,6 +11,12 @@
       </div>
     </header>
 
+    <div v-if="simDefectCount > 0" class="sim-banner">
+      阈值模拟处置已向本清单追加 <strong>{{ simDefectCount }}</strong> 条「逾期巡查待排查病害」，
+      同时下发了巡查待办与督办派车，可前往
+      <RouterLink to="/simulator">逾期阈值模拟器</RouterLink> 查看口径。
+    </div>
+
     <div class="stat-row">
       <article v-for="item in stats" :key="item.label" class="stat-card">
         <span class="stat-label">{{ item.label }}</span>
@@ -126,5 +132,35 @@ async function reload() {
   }
 }
 
-onMounted(reload)
+const simDefectCount = ref(0)
+
+async function loadLandingStats() {
+  try {
+    const response = await request('/api/simulator/landing-stats')
+    if (!response.ok) return
+    const payload = await response.json()
+    simDefectCount.value = Number(payload.defectCount ?? 0)
+  } catch {
+    // 模拟器不可用时不影响病害主列表
+  }
+}
+
+onMounted(() => {
+  void reload()
+  void loadLandingStats()
+})
 </script>
+
+<style scoped>
+.sim-banner {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-left: 4px solid #ea580c;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #9a3412;
+  margin-bottom: 12px;
+}
+.sim-banner a { color: #1f6feb; }
+</style>
